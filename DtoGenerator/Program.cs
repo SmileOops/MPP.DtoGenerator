@@ -1,15 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DtoGenerator.Classes;
 
 namespace DtoGenerator
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            if (args.Length == 2)
+            {
+                if (JsonClassesParser.IsJsonFileCorrect(args[1]))
+                {
+                    var jsonClasses = JsonClassesParser.GetJsonClassesInfo(args[1]);
+                }
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("This program works with two parameters:");
+                Console.WriteLine("1) JSON file path");
+                Console.WriteLine("2) Output directory path");
+                Console.ReadLine();
+            }
         }
     }
 }
