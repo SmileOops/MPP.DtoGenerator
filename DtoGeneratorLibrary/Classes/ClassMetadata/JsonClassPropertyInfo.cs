@@ -1,6 +1,6 @@
-﻿namespace DtoGenerator.Classes.ClassMetadata
+﻿namespace DtoGeneratorLibrary.ClassMetadata
 {
-    internal sealed class JsonClassPropertyInfo
+    public sealed class JsonClassPropertyInfo
     {
         public string Name { get; set; }
         public string Type { get; set; }

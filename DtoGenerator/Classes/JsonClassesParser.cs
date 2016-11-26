@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using DtoGenerator.Classes.ClassMetadata;
+using DtoGeneratorLibrary.ClassMetadata;
 using Newtonsoft.Json;
 
 namespace DtoGenerator.Classes
@@ -8,7 +8,7 @@ namespace DtoGenerator.Classes
     {
         public static JsonClassesInfo GetJsonClassesInfo(string path)
         {
-            return JsonConvert.DeserializeObject<JsonClassesInfo>(GetJsonStringFromFile(path));   
+            return JsonConvert.DeserializeObject<JsonClassesInfo>(GetJsonStringFromFile(path));
         }
 
         public static bool IsJsonFileCorrect(string path)

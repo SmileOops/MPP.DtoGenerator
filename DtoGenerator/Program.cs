@@ -1,5 +1,6 @@
 ﻿using System;
 using DtoGenerator.Classes;
+using DtoGeneratorLibrary;
 
 namespace DtoGenerator
 {
@@ -9,9 +10,11 @@ namespace DtoGenerator
         {
             if (args.Length == 2)
             {
-                if (JsonClassesParser.IsJsonFileCorrect(args[1]))
+                if (JsonClassesParser.IsJsonFileCorrect(args[0]))
                 {
-                    var jsonClasses = JsonClassesParser.GetJsonClassesInfo(args[1]);
+                    var jsonClasses = JsonClassesParser.GetJsonClassesInfo(args[0]);
+                    var generator = new CsCodeGenerator();
+                    Console.WriteLine(generator.GetClassDeclaration(jsonClasses.ClassesInfo[1]));
                 }
                 Console.ReadLine();
             }

@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace DtoGenerator.Classes.ClassMetadata
+namespace DtoGeneratorLibrary.ClassMetadata
 {
-    internal sealed class JsonClassInfo
+    public sealed class JsonClassInfo
     {
         [JsonProperty(PropertyName = "className")]
         public string ClassName { get; set; }
