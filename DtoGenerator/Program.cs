@@ -14,7 +14,9 @@ namespace DtoGenerator
                 {
                     var jsonClasses = JsonClassesParser.GetJsonClassesInfo(args[0]);
                     var generator = new CsCodeGenerator();
-                    Console.WriteLine(generator.GetClassDeclaration(jsonClasses.ClassesInfo[1]));
+                    var classStrings = generator.GetClassStrings(jsonClasses);
+
+                    CsFilesGenerator.WriteClassStringsToFiles(classStrings, args[1]);
                 }
                 Console.ReadLine();
             }

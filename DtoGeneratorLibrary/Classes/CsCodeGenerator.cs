@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DtoGeneratorLibrary.AvailableTypes;
 using DtoGeneratorLibrary.ClassMetadata;
 using Microsoft.CodeAnalysis;
@@ -13,21 +14,26 @@ namespace DtoGeneratorLibrary
     {
         private readonly TypesTable _typesTable = new TypesTable();
 
-        public string GetClassDeclaration(JsonClassInfo classInfo)
+        public Dictionary<string, string> GetClassStrings(JsonClassesInfo classesInfo)
         {
-            var classDeclaration = OpenClassDeclaration(classInfo.ClassName);
+            return classesInfo.ClassesInfo.ToDictionary(classInfo => classInfo.ClassName, GetClassString);
+        }
+
+        private string GetClassString(JsonClassInfo classInfo)
+        {
+            var classDeclaration = GetClassDeclaration(classInfo.ClassName);
 
             classDeclaration = classInfo.Properties.Aggregate(classDeclaration,
                 (current, property) =>
                     current.AddMembers(
-                        DeclareProperty(
+                        GetPropertyDeclaration(
                             _typesTable.GetNetType(new StringDescribedType(property.Type, property.Format)),
                             property.Name)));
 
             return FormatNode(classDeclaration).ToString();
         }
 
-        private ClassDeclarationSyntax OpenClassDeclaration(string className)
+        private ClassDeclarationSyntax GetClassDeclaration(string className)
         {
             return SyntaxFactory.ClassDeclaration(className)
                 .AddModifiers(
@@ -35,7 +41,7 @@ namespace DtoGeneratorLibrary
                     SyntaxFactory.Token(SyntaxKind.SealedKeyword));
         }
 
-        private PropertyDeclarationSyntax DeclareProperty(string propertyType, string propertyName)
+        private PropertyDeclarationSyntax GetPropertyDeclaration(string propertyType, string propertyName)
         {
             return SyntaxFactory.PropertyDeclaration(
                 SyntaxFactory.ParseTypeName(propertyType),
