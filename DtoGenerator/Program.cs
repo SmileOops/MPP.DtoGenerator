@@ -1,6 +1,7 @@
 ﻿using System;
 using DtoGenerator.Classes;
 using DtoGeneratorLibrary;
+using DtoGeneratorLibrary.ClassMetadata;
 
 namespace DtoGenerator
 {
@@ -17,6 +18,7 @@ namespace DtoGenerator
                 Console.WriteLine("Config file error!");
                 Console.WriteLine("Check \"tasksNumber\" and \"namespace\" fields.");
 
+                Console.ReadLine();
                 return;
             }
 
@@ -24,7 +26,15 @@ namespace DtoGenerator
             {
                 if (JsonClassesParser.IsJsonFileCorrect(args[0]))
                 {
-                    var jsonClasses = JsonClassesParser.GetJsonClassesInfo(args[0]);
+                    JsonClassesInfo jsonClasses;
+                    if (!JsonClassesParser.TryGetJsonClassesInfo(args[0], out jsonClasses))
+                    {
+                        Console.WriteLine("Your json file has incorrect data.");
+                        Console.ReadLine();
+
+                        return;
+                    }
+
                     var generator = new CsCodeGenerator();
                     var classStrings = generator.GetClassStrings(jsonClasses, classesNamespace);
 
