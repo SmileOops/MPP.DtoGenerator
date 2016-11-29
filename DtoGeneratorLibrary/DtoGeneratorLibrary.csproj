@@ -167,6 +167,7 @@
     <Compile Include="Classes\ClassMetadata\JsonClassesInfo.cs" />
     <Compile Include="Classes\ClassMetadata\JsonClassInfo.cs" />
     <Compile Include="Classes\ClassMetadata\JsonClassPropertyInfo.cs" />
+    <Compile Include="Classes\ClassMetadata\WriteableClass.cs" />
     <Compile Include="Classes\CsCodeGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

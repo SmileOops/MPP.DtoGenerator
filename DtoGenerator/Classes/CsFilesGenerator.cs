@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using DtoGeneratorLibrary.Classes.ClassMetadata;
 
 namespace DtoGenerator.Classes
 {
     internal static class CsFilesGenerator
     {
-        public static void WriteClassStringsToFiles(Dictionary<string, string> classStrings, string filesDirectory)
+        public static void WriteClassStringsToFiles(List<WriteableClass> writeableClasses, string directory)
         {
-            foreach (var classString in classStrings)
+            foreach (var writeableClass in writeableClasses)
             {
-                WriteClassStringToFile(classString.Key, classString.Value, filesDirectory);
+                WriteClassStringToFile(writeableClass.Name, writeableClass.Code, directory);
             }
         }
 
@@ -18,7 +18,7 @@ namespace DtoGenerator.Classes
         {
             var filePath = $"{fileDirectory}\\{className}.cs";
 
-            using (StreamWriter sw = File.CreateText(filePath))
+            using (var sw = File.CreateText(filePath))
             {
                 sw.Write(classString);
             }

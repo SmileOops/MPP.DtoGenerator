@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using DtoGeneratorLibrary.AvailableTypes;
+using DtoGeneratorLibrary.Classes.ClassMetadata;
 using DtoGeneratorLibrary.ClassMetadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,14 +15,85 @@ namespace DtoGeneratorLibrary
 {
     public sealed class CsCodeGenerator
     {
-        private readonly TypesTable _typesTable = new TypesTable();
+        private readonly int _maxTasksNumber;
 
-        public Dictionary<string, string> GetClassStrings(JsonClassesInfo classesInfo, string classesNamespace)
+        private readonly TypesTable _typesTable = new TypesTable();
+        private int _activeTasksNumber;
+        private readonly string _classesNamespace;
+        private readonly ConcurrentQueue<JsonClassInfo> _classesQueue;
+        private readonly object _syncObject;
+        private readonly List<WriteableClass> _writeableClasses;
+
+        public CsCodeGenerator(string classesNamespace, int maxTasksNumber)
         {
-            return classesInfo.ClassesInfo.ToDictionary(classInfo => classInfo.ClassName, classInfo => GetClassString(classInfo, classesNamespace));
+            _maxTasksNumber = maxTasksNumber;
+            _classesNamespace = classesNamespace;
+            _writeableClasses = new List<WriteableClass>();
+            _activeTasksNumber = 0;
+            _classesQueue = new ConcurrentQueue<JsonClassInfo>();
+            _syncObject = new object();
         }
 
-        private string GetClassString(JsonClassInfo classInfo, string classesNamespace)
+        private bool IsFilled => _maxTasksNumber == _activeTasksNumber;
+
+        private void EnqueueClassGenerating(JsonClassInfo jsonClass, string classesNamespace,
+            CountdownEvent countdownEvent)
+        {
+            lock (_syncObject)
+            {
+                if (!IsFilled)
+                {
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        GetClassString(jsonClass, classesNamespace);
+                        EndCallback(countdownEvent);
+                    });
+                    _activeTasksNumber++;
+                }
+                else
+                {
+                    _classesQueue.Enqueue(jsonClass);
+                }
+            }
+        }
+
+        private void EndCallback(CountdownEvent countdownEvent)
+        {
+            lock (_syncObject)
+            {
+                _activeTasksNumber--;
+                if (!IsFilled)
+                {
+                    JsonClassInfo dequeuedClass;
+                    if (_classesQueue.TryDequeue(out dequeuedClass))
+                    {
+                        ThreadPool.QueueUserWorkItem(delegate
+                        {
+                            GetClassString(dequeuedClass, _classesNamespace);
+                            EndCallback(countdownEvent);
+                        });
+                    }
+                }
+                countdownEvent.Signal();
+            }
+        }
+
+        public List<WriteableClass> GetClassStrings(JsonClassesInfo classesInfo, string classesNamespace)
+        {
+            //return classesInfo.ClassesInfo.Select(classInfo => new WriteableClass(classInfo.ClassName, GetClassString(classInfo, classesNamespace))).ToList();
+            using (var countdownEvent = new CountdownEvent(classesInfo.ClassesInfo.Length))
+            {
+                foreach (var classInfo in classesInfo.ClassesInfo)
+                {
+                    EnqueueClassGenerating(classInfo, classesNamespace, countdownEvent);
+                }
+
+                countdownEvent.Wait();
+            }
+            return _writeableClasses;
+        }
+
+        private void GetClassString(JsonClassInfo classInfo, string classesNamespace)
         {
             var namespaceDeclaration = GetNameSpaceDeclaration(classesNamespace);
             var classDeclaration = GetClassDeclaration(classInfo.ClassName);
@@ -33,7 +107,7 @@ namespace DtoGeneratorLibrary
 
             namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclaration);
 
-            return FormatNode(namespaceDeclaration).ToString();
+            _writeableClasses.Add(new WriteableClass(classInfo.ClassName, FormatNode(namespaceDeclaration).ToString()));
         }
 
         private NamespaceDeclarationSyntax GetNameSpaceDeclaration(string classNamespace)

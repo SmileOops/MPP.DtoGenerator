@@ -35,10 +35,10 @@ namespace DtoGenerator
                         return;
                     }
 
-                    var generator = new CsCodeGenerator();
-                    var classStrings = generator.GetClassStrings(jsonClasses, classesNamespace);
+                    var generator = new CsCodeGenerator(classesNamespace, tasksNumber);
+                    var writeableClasses = generator.GetClassStrings(jsonClasses, classesNamespace);
 
-                    CsFilesGenerator.WriteClassStringsToFiles(classStrings, args[1]);
+                    CsFilesGenerator.WriteClassStringsToFiles(writeableClasses, args[1]);
                 }
                 Console.ReadLine();
             }

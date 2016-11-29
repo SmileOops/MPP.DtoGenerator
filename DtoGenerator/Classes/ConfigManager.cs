@@ -7,7 +7,7 @@ namespace DtoGenerator.Classes
     {
         internal static bool TryGetTasksNumber(out int tasksCount)
         {
-            string tasksNumberString = ConfigurationManager.AppSettings["tasksNumber"];
+            var tasksNumberString = ConfigurationManager.AppSettings["tasksNumber"];
 
             if (tasksNumberString != null)
             {
@@ -30,7 +30,7 @@ namespace DtoGenerator.Classes
 
         internal static bool TryGetNamespace(out string classesNamespace)
         {
-            string classesNamespaceString = ConfigurationManager.AppSettings["namespace"];
+            var classesNamespaceString = ConfigurationManager.AppSettings["namespace"];
 
             if (!string.IsNullOrEmpty(classesNamespaceString))
             {
@@ -39,7 +39,7 @@ namespace DtoGenerator.Classes
                 return true;
             }
 
-            classesNamespace = String.Empty;
+            classesNamespace = string.Empty;
             return false;
         }
     }
