@@ -14,13 +14,14 @@ namespace DtoGeneratorLibrary
     {
         private readonly TypesTable _typesTable = new TypesTable();
 
-        public Dictionary<string, string> GetClassStrings(JsonClassesInfo classesInfo)
+        public Dictionary<string, string> GetClassStrings(JsonClassesInfo classesInfo, string classesNamespace)
         {
-            return classesInfo.ClassesInfo.ToDictionary(classInfo => classInfo.ClassName, GetClassString);
+            return classesInfo.ClassesInfo.ToDictionary(classInfo => classInfo.ClassName, classInfo => GetClassString(classInfo, classesNamespace));
         }
 
-        private string GetClassString(JsonClassInfo classInfo)
+        private string GetClassString(JsonClassInfo classInfo, string classesNamespace)
         {
+            var namespaceDeclaration = GetNameSpaceDeclaration(classesNamespace);
             var classDeclaration = GetClassDeclaration(classInfo.ClassName);
 
             classDeclaration = classInfo.Properties.Aggregate(classDeclaration,
@@ -30,7 +31,14 @@ namespace DtoGeneratorLibrary
                             _typesTable.GetNetType(new StringDescribedType(property.Type, property.Format)),
                             property.Name)));
 
-            return FormatNode(classDeclaration).ToString();
+            namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclaration);
+
+            return FormatNode(namespaceDeclaration).ToString();
+        }
+
+        private NamespaceDeclarationSyntax GetNameSpaceDeclaration(string classNamespace)
+        {
+            return SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(classNamespace));
         }
 
         private ClassDeclarationSyntax GetClassDeclaration(string className)
