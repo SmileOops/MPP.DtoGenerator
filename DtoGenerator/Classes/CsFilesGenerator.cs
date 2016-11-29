@@ -10,8 +10,7 @@ namespace DtoGenerator.Classes
         {
             foreach (var classString in classStrings)
             {
-                ThreadPool.QueueUserWorkItem(
-                    state => WriteClassStringToFile(classString.Key, classString.Value, filesDirectory));
+                WriteClassStringToFile(classString.Key, classString.Value, filesDirectory);
             }
         }
 

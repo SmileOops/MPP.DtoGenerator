@@ -8,6 +8,18 @@ namespace DtoGenerator
     {
         private static void Main(string[] args)
         {
+            int tasksNumber;
+            string classesNamespace;
+
+            if (!ConfigManager.TryGetTasksNumber(out tasksNumber) ||
+                !ConfigManager.TryGetNamespace(out classesNamespace))
+            {
+                Console.WriteLine("Config file error!");
+                Console.WriteLine("Check \"tasksNumber\" and \"namespace\" fields.");
+
+                return;
+            }
+
             if (args.Length == 2)
             {
                 if (JsonClassesParser.IsJsonFileCorrect(args[0]))
