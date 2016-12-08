@@ -1,4 +1,4 @@
-﻿namespace DtoGeneratorLibrary.Classes.ClassMetadata
+﻿namespace DtoGeneratorLibrary.ClassMetadata
 {
     public sealed class WriteableClass
     {

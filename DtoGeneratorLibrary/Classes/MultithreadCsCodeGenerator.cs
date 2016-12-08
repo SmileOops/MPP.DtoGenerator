@@ -1,9 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using DtoGeneratorLibrary.AvailableTypes;
-using DtoGeneratorLibrary.Classes.ClassMetadata;
 using DtoGeneratorLibrary.ClassMetadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,24 +11,24 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace DtoGeneratorLibrary
 {
-    public sealed class CsCodeGenerator
+    public sealed class MultithreadCsCodeGenerator
     {
         private readonly string _classesNamespace;
-        private readonly ConcurrentQueue<JsonClassInfo> _classesQueue;
+        private readonly Queue<JsonClassInfo> _classesQueue;
         private readonly int _maxTasksNumber;
         private readonly object _syncObject;
-
-        private readonly TypesTable _typesTable = new TypesTable();
+        private readonly TypesTable _typesTable;
         private readonly List<WriteableClass> _writeableClasses;
         private int _activeTasksNumber;
 
-        public CsCodeGenerator(string classesNamespace, int maxTasksNumber)
+        public MultithreadCsCodeGenerator(string classesNamespace, int maxTasksNumber)
         {
+            _activeTasksNumber = 0;
             _maxTasksNumber = maxTasksNumber;
             _classesNamespace = classesNamespace;
+            _typesTable = new TypesTable();
             _writeableClasses = new List<WriteableClass>();
-            _activeTasksNumber = 0;
-            _classesQueue = new ConcurrentQueue<JsonClassInfo>();
+            _classesQueue = new Queue<JsonClassInfo>();
             _syncObject = new object();
         }
 
@@ -64,9 +62,10 @@ namespace DtoGeneratorLibrary
                 _activeTasksNumber--;
                 if (!IsFilled)
                 {
-                    JsonClassInfo dequeuedClass;
-                    if (_classesQueue.TryDequeue(out dequeuedClass))
+                    if (_classesQueue.Count != 0)
                     {
+                        var dequeuedClass = _classesQueue.Dequeue();
+
                         ThreadPool.QueueUserWorkItem(delegate
                         {
                             PutClassStringInList(dequeuedClass, _classesNamespace);
