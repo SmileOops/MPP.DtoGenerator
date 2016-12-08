@@ -15,14 +15,14 @@ namespace DtoGeneratorLibrary
 {
     public sealed class CsCodeGenerator
     {
-        private readonly int _maxTasksNumber;
-
-        private readonly TypesTable _typesTable = new TypesTable();
-        private int _activeTasksNumber;
         private readonly string _classesNamespace;
         private readonly ConcurrentQueue<JsonClassInfo> _classesQueue;
+        private readonly int _maxTasksNumber;
         private readonly object _syncObject;
+
+        private readonly TypesTable _typesTable = new TypesTable();
         private readonly List<WriteableClass> _writeableClasses;
+        private int _activeTasksNumber;
 
         public CsCodeGenerator(string classesNamespace, int maxTasksNumber)
         {
@@ -45,7 +45,7 @@ namespace DtoGeneratorLibrary
                 {
                     ThreadPool.QueueUserWorkItem(delegate
                     {
-                        GetClassString(jsonClass, classesNamespace);
+                        PutClassStringInList(jsonClass, classesNamespace);
                         EndCallback(countdownEvent);
                     });
                     _activeTasksNumber++;
@@ -69,7 +69,7 @@ namespace DtoGeneratorLibrary
                     {
                         ThreadPool.QueueUserWorkItem(delegate
                         {
-                            GetClassString(dequeuedClass, _classesNamespace);
+                            PutClassStringInList(dequeuedClass, _classesNamespace);
                             EndCallback(countdownEvent);
                         });
                     }
@@ -80,7 +80,6 @@ namespace DtoGeneratorLibrary
 
         public List<WriteableClass> GetClassStrings(JsonClassesInfo classesInfo, string classesNamespace)
         {
-            //return classesInfo.ClassesInfo.Select(classInfo => new WriteableClass(classInfo.ClassName, GetClassString(classInfo, classesNamespace))).ToList();
             using (var countdownEvent = new CountdownEvent(classesInfo.ClassesInfo.Length))
             {
                 foreach (var classInfo in classesInfo.ClassesInfo)
@@ -93,7 +92,7 @@ namespace DtoGeneratorLibrary
             return _writeableClasses;
         }
 
-        private void GetClassString(JsonClassInfo classInfo, string classesNamespace)
+        private void PutClassStringInList(JsonClassInfo classInfo, string classesNamespace)
         {
             var namespaceDeclaration = GetNameSpaceDeclaration(classesNamespace);
             var classDeclaration = GetClassDeclaration(classInfo.ClassName);

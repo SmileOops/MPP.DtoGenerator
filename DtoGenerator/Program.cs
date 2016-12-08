@@ -24,7 +24,7 @@ namespace DtoGenerator
 
             if (args.Length == 2)
             {
-                if (JsonClassesParser.IsJsonFileCorrect(args[0]))
+                if (JsonClassesParser.IsJsonFileExists(args[0]))
                 {
                     JsonClassesInfo jsonClasses;
                     if (!JsonClassesParser.TryGetJsonClassesInfo(args[0], out jsonClasses))
@@ -39,6 +39,12 @@ namespace DtoGenerator
                     var writeableClasses = generator.GetClassStrings(jsonClasses, classesNamespace);
 
                     CsFilesGenerator.WriteClassStringsToFiles(writeableClasses, args[1]);
+
+                    Console.WriteLine("Done!");
+                }
+                else
+                {
+                    Console.WriteLine("Json file doesn't exist.");
                 }
                 Console.ReadLine();
             }

@@ -2,13 +2,11 @@
 
 namespace DtoGeneratorLibrary.AvailableTypes
 {
-    internal sealed class TypesTable
+    public sealed class TypesTable
     {
-        private readonly Dictionary<StringDescribedType, string> _availableTypes;
-
         public TypesTable()
         {
-            _availableTypes = new Dictionary<StringDescribedType, string>
+            AvailableTypes = new Dictionary<StringDescribedType, string>
             {
                 {new StringDescribedType("integer", "int32"), "int"},
                 {new StringDescribedType("integer", "int64"), "long"},
@@ -21,11 +19,13 @@ namespace DtoGeneratorLibrary.AvailableTypes
             };
         }
 
+        public Dictionary<StringDescribedType, string> AvailableTypes { get; }
+
         public string GetNetType(StringDescribedType stringDescribedType)
         {
             string netType;
 
-            _availableTypes.TryGetValue(stringDescribedType, out netType);
+            AvailableTypes.TryGetValue(stringDescribedType, out netType);
 
             return netType;
         }
