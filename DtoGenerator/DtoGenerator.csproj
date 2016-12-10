@@ -143,7 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\ConfigManager.cs" />
-    <Compile Include="Classes\CsFilesGenerator.cs" />
+    <Compile Include="Classes\CsFilesWriter.cs" />
     <Compile Include="Classes\JsonClassesParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

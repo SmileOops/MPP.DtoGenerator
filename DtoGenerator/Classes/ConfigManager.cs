@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace DtoGenerator.Classes
 {
@@ -8,23 +7,13 @@ namespace DtoGenerator.Classes
         internal static bool TryGetTasksNumber(out int tasksCount)
         {
             var tasksNumberString = ConfigurationManager.AppSettings["tasksNumber"];
+            tasksCount = 0;
 
             if (tasksNumberString != null)
             {
-                try
-                {
-                    tasksCount = Convert.ToInt32(tasksNumberString);
-                }
-                catch (FormatException)
-                {
-                    tasksCount = 0;
-                    return false;
-                }
-
-                return true;
+                if (int.TryParse(tasksNumberString, out tasksCount)) return true;
             }
 
-            tasksCount = 0;
             return false;
         }
 

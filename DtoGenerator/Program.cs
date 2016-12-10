@@ -29,18 +29,27 @@ namespace DtoGenerator
                     JsonClassesInfo jsonClasses;
                     if (!JsonClassesParser.TryGetJsonClassesInfo(args[0], out jsonClasses))
                     {
-                        Console.WriteLine("Your json file has incorrect data.");
-                        Console.ReadLine();
+                        if (jsonClasses.ClassesInfo.Length == 0)
+                        {
+                            Console.WriteLine("Your json file has incorrect format.");
+                            Console.WriteLine("I can't parse anything from it((((");
+                            Console.ReadLine();
 
-                        return;
+                            return;
+                        }
+
+                        Console.WriteLine("Some classes in your json file has incorrect data.");
+                        Console.WriteLine(
+                            "Please, check those classes which names or properties are named as undefined in generated files.");
                     }
 
                     var generator = new MultithreadCsCodeGenerator(classesNamespace, tasksNumber);
-                    var writeableClasses = generator.GetClassStrings(jsonClasses, classesNamespace);
+                    var writeableClasses = generator.GetWriteableClasses(jsonClasses, classesNamespace);
 
                     CsFilesWriter.WriteClassStringsToFiles(writeableClasses, args[1]);
 
                     Console.WriteLine("Done!");
+                    Console.WriteLine($"{writeableClasses.Count} classes have been generated!");
                 }
                 else
                 {

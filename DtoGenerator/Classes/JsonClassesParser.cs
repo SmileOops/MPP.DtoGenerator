@@ -21,20 +21,50 @@ namespace DtoGenerator.Classes
             }
             catch (JsonReaderException)
             {
-                jsonClasses = new JsonClassesInfo();
-
+                jsonClasses = new JsonClassesInfo {ClassesInfo = new JsonClassInfo[0]};
                 return false;
             }
 
+            var undefinedNamesCounter = 0;
+            var undefinedPropertiesCounter = 0;
+            var result = true;
+
             foreach (var jsonClass in jsonClassesToTry.ClassesInfo)
             {
-                jsonClasses = new JsonClassesInfo();
-                if (!IsClassParsedNormally(jsonClass)) return false;
+                if (!IsClassNameParsedNormally(jsonClass))
+                {
+                    undefinedNamesCounter++;
+                    jsonClass.ClassName = $"UndefinedName{undefinedNamesCounter}";
+
+                    result = false;
+                }
+
+                if (IsPropertiesArrayParsedNormally(jsonClass))
+                {
+                    foreach (var property in jsonClass.Properties)
+                    {
+                        if (!IsPropertyParsedNormally(property))
+                        {
+                            undefinedPropertiesCounter++;
+                            property.Type = "integer";
+                            property.Format = "int32";
+                            property.Name = $"UndefinedProperty{undefinedPropertiesCounter}";
+
+                            result = false;
+                        }
+                    }
+
+                    undefinedPropertiesCounter = 0;
+                }
+                else
+                {
+                    jsonClass.Properties = new JsonClassPropertyInfo[0];
+                }
             }
 
             jsonClasses = jsonClassesToTry;
 
-            return true;
+            return result;
         }
 
         private static string GetJsonStringFromFile(string path)
@@ -44,21 +74,24 @@ namespace DtoGenerator.Classes
                 return stream.ReadToEnd();
             }
         }
+        
+        private static bool IsClassNameParsedNormally(JsonClassInfo classInfo)
+        {
+            return !string.IsNullOrEmpty(classInfo.ClassName);
+        }
 
-        private static bool IsClassParsedNormally(JsonClassInfo classInfo)
+        private static bool IsPropertiesArrayParsedNormally(JsonClassInfo classInfo)
+        {
+            return classInfo.Properties != null;
+        }
+
+        private static bool IsPropertyParsedNormally(JsonClassPropertyInfo propertyInfo)
         {
             var typesTable = new TypesTable();
 
-            if (string.IsNullOrEmpty(classInfo.ClassName)) return false;
-
-            if (classInfo.Properties == null) return false;
-
-            foreach (var property in classInfo.Properties)
-            {
-                if (string.IsNullOrEmpty(property.Name)) return false;
-                if (!typesTable.AvailableTypes.ContainsKey(new StringDescribedType(property.Type, property.Format)))
-                    return false;
-            }
+            if (string.IsNullOrEmpty(propertyInfo.Name)) return false;
+            if (!typesTable.AvailableTypes.ContainsKey(new StringDescribedType(propertyInfo.Type, propertyInfo.Format)))
+                return false;
 
             return true;
         }

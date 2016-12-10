@@ -77,7 +77,7 @@ namespace DtoGeneratorLibrary
             }
         }
 
-        public List<WriteableClass> GetClassStrings(JsonClassesInfo classesInfo, string classesNamespace)
+        public List<WriteableClass> GetWriteableClasses(JsonClassesInfo classesInfo, string classesNamespace)
         {
             using (var countdownEvent = new CountdownEvent(classesInfo.ClassesInfo.Length))
             {
