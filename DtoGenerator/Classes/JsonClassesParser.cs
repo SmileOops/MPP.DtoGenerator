@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using DtoGeneratorLibrary.AvailableTypes;
 using DtoGeneratorLibrary.ClassMetadata;
 using Newtonsoft.Json;
@@ -21,12 +22,11 @@ namespace DtoGenerator.Classes
             }
             catch (JsonReaderException)
             {
-                jsonClasses = new JsonClassesInfo {ClassesInfo = new JsonClassInfo[0]};
+                jsonClasses = new JsonClassesInfo {ClassesInfo = new List<JsonClassInfo>()};
                 return false;
             }
 
             var undefinedNamesCounter = 0;
-            var undefinedPropertiesCounter = 0;
             var result = true;
 
             foreach (var jsonClass in jsonClassesToTry.ClassesInfo)
@@ -41,24 +41,20 @@ namespace DtoGenerator.Classes
 
                 if (IsPropertiesArrayParsedNormally(jsonClass))
                 {
-                    foreach (var property in jsonClass.Properties)
+                    for (int i = 0; i < jsonClass.Properties.Count; i++)
                     {
+                        var property = jsonClass.Properties[i];
                         if (!IsPropertyParsedNormally(property))
-                        {
-                            undefinedPropertiesCounter++;
-                            property.Type = "integer";
-                            property.Format = "int32";
-                            property.Name = $"UndefinedProperty{undefinedPropertiesCounter}";
+                        { 
+                            jsonClass.Properties.RemoveAt(i);
 
                             result = false;
                         }
                     }
-
-                    undefinedPropertiesCounter = 0;
                 }
                 else
                 {
-                    jsonClass.Properties = new JsonClassPropertyInfo[0];
+                    jsonClass.Properties = new List<JsonClassPropertyInfo>();
                 }
             }
 

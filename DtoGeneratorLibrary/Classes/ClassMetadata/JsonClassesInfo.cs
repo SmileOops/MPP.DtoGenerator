@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace DtoGeneratorLibrary.ClassMetadata
 {
     public class JsonClassesInfo
     {
         [JsonProperty(PropertyName = "classDescriptions")]
-        public JsonClassInfo[] ClassesInfo { get; set; }
+        public List<JsonClassInfo> ClassesInfo { get; set; }
     }
 }

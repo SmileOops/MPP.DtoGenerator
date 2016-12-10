@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace DtoGeneratorLibrary.ClassMetadata
 {
@@ -8,6 +9,6 @@ namespace DtoGeneratorLibrary.ClassMetadata
         public string ClassName { get; set; }
 
         [JsonProperty(PropertyName = "properties")]
-        public JsonClassPropertyInfo[] Properties { get; set; }
+        public List<JsonClassPropertyInfo> Properties { get; set; }
     }
 }

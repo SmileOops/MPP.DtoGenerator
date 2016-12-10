@@ -79,7 +79,7 @@ namespace DtoGeneratorLibrary
 
         public List<WriteableClass> GetWriteableClasses(JsonClassesInfo classesInfo, string classesNamespace)
         {
-            using (var countdownEvent = new CountdownEvent(classesInfo.ClassesInfo.Length))
+            using (var countdownEvent = new CountdownEvent(classesInfo.ClassesInfo.Count))
             {
                 foreach (var classInfo in classesInfo.ClassesInfo)
                 {

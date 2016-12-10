@@ -5,8 +5,8 @@
             "properties": [
                 {
                     "name": "FirstProperty",
-                    "type": "integer",
-                    "format": "int32"
+                    "tydedpe": "integer",
+                    "format": "int3dw2"
                 },
                 {
                     "name": "SecondProperty",
